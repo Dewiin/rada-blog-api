@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { indexController } from "../controllers/indexController";
+import { indexController } from "../controllers/indexController.js";
 export const indexRouter = Router();
 
 // *add auth middleware*
 indexRouter.get('/', indexController.getPosts);
 indexRouter.post('/', indexController.createPost);
-indexRouter.update('/:id', indexController.updatePost);
+indexRouter.put('/:id', indexController.updatePost);
 

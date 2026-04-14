@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import { prisma } from "../config/prismaClient";
+import { prisma } from "../config/prismaClient.js";
 
 async function signUp(req, res) {
     try {
