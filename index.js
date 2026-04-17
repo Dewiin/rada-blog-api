@@ -8,6 +8,9 @@ import { fileURLToPath } from 'node:url';
 import { indexRouter } from "./routes/indexRouter.js";
 import { authRouter } from "./routes/authRouter.js";
 
+// config
+import "./config/passportConfig.js"
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const app = express();
