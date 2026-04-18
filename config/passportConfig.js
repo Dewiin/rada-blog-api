@@ -6,25 +6,7 @@ import bcrypt from "bcryptjs";
 import "dotenv/config";
 
 // LocalStrategy callback
-async function localSignupVerifyCallback(username, password, done) {
-	try {
-        const hashedPassword = await bcrypt.hash(password, 10);
-		const user = await prisma.user.create({
-			data: {
-				username,
-                password,
-                provider: "LOCAL",
-			},
-		});		
-
-		return done(null, user);
-	} catch (err) {
-        console.error(err);
-		return done(err);
-	}
-}
-
-async function localLoginVerifyCallback(username, password, done) {
+async function localVerifyCallback(username, password, done) {
 	try {
 		const user = await prisma.user.findUnique({
 			where: {
@@ -48,5 +30,4 @@ async function localLoginVerifyCallback(username, password, done) {
 }
 
 // Config
-passport.use("signup", new LocalStrategy(localSignupVerifyCallback));
-passport.use("login", new LocalStrategy(localLoginVerifyCallback));
+passport.use("login", new LocalStrategy(localVerifyCallback));
