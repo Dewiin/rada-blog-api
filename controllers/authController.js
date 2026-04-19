@@ -1,7 +1,6 @@
 import bcrypt from "bcryptjs";
 import passport from "passport";
 import jwt from "jsonwebtoken";
-import cookieParser from "cookie-parser"
 import { prisma } from "../config/prismaClient.js";
 
 async function signUp(req, res) {
@@ -82,7 +81,7 @@ export function verifyToken(req, res) {
         if (!decoded || typeof decoded !== 'object') {
             return res.status(400).json({ error: 'Token is invalid!' });
         }
-        
+
         return res.status(200).json(decoded);
     } catch (err) {
         console.error("Error in verifyToken:", err.message, err.stack);
