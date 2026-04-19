@@ -1,6 +1,7 @@
 import express from "express";
 import passport from "passport";
 import cors from "cors"
+import cookieParser from "cookie-parser"
 import path, { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -32,6 +33,7 @@ app.use(cors({
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
+app.use(cookieParser());
 
 // Routes
 app.get("/api", (req, res) => {

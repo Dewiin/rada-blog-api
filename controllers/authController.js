@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import passport from "passport";
 import jwt from "jsonwebtoken";
+import cookieParser from "cookie-parser"
 import { prisma } from "../config/prismaClient.js";
 
 async function signUp(req, res) {
@@ -53,7 +54,7 @@ async function login(req, res) {
 
             return res.cookie("token", token, {
                 httpOnly: true,
-                secure: true
+                secure: process.env.NODE_ENV === "production"
             }).json({ message: "User logged in." });
         })(req, res);
     } catch (err) {
@@ -68,8 +69,32 @@ async function logout(req, res) {
 
 }
 
+export function verifyToken(req, res) {
+    try {
+        console.log("Cookies", req.cookies);
+
+        const token = req.cookies.token;
+        if(!token) {
+            res.sendStatus(400).json({ error: "Token is missing!" });
+        }
+    
+        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+        if (!decoded || typeof decoded !== 'object') {
+            return res.status(400).json({ error: 'Token is invalid!' });
+        }
+        
+        return res.status(200).json(decoded);
+    } catch (err) {
+        console.error("Error in verifyToken:", err.message, err.stack);
+        return res.status(500).json({
+            error: "Error verifying token.",
+        });
+    }    
+}
+
 export const authController = {
     signUp,
     login,
-    logout
+    logout,
+    verifyToken
 };

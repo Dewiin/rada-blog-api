@@ -1,5 +1,4 @@
 import { prisma } from "../config/prismaClient.js";
-import { verifyToken } from "../middleware/verifyToken.js";
 
 // TODO: add filters
 async function getPosts(req, res) {
