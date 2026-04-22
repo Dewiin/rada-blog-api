@@ -7,6 +7,15 @@ async function signUp(req, res) {
     try {
         const { username, password } = req.body;
         const hashedPassword = await bcrypt.hash(password, 10);
+
+        // check if user exists
+        const dupeUser = await prisma.user.findUnique({
+            where: {
+                username,
+            }
+        });
+        if(dupeUser) return res.status(409).json({ error: "Username already exists" });
+
         const user = await prisma.user.create({
             data: {
                 username, 
@@ -32,7 +41,7 @@ async function signUp(req, res) {
     } catch (err) {
         console.error("Error in signUp:", err.message, err.stack);
         return res.status(500).json({
-            error: "Database query failed for signUp.",
+            error: "Server failed for signUp.",
         });
     }
 }
@@ -41,7 +50,8 @@ async function login(req, res) {
     try {
         passport.authenticate("login", (err, user, info) => {
             if(err) return res.status(400).json({error: "Authentication failed."});
-            if(!user) return res.status(401).json({error: info?.message})
+            if(!user) return res.status(401).json({error: info?.message});
+
             const token = jwt.sign(
                 {
                     id: user.id,
@@ -60,20 +70,32 @@ async function login(req, res) {
     } catch (err) {
         console.error("Error in login:", err.message, err.stack);
         return res.status(500).json({
-            error: "Database query failed for login.",
+            error: "Server failed for login.",
         });
     }
 }
 
 async function logout(req, res) {
+    try {
+        res.clearCookie("token", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+        });
 
+        return res.json({ message: "User logged out." });
+    } catch (err) {
+        console.error("Error in logout:", err.message, err.stack);
+        return res.status(500).json({
+            error: "Server failed for logout.",
+        });
+    }
 }
 
 export function verifyToken(req, res) {
     try {
         const token = req.cookies.token;
         if(!token) {
-            res.sendStatus(400).json({ error: "Token is missing!" });
+            return res.sendStatus(400).json({ error: "Token is missing!" });
         }
     
         const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);

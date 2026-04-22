@@ -14,7 +14,7 @@ async function localVerifyCallback(username, password, done) {
 			},
 		});
 		if (!user) {
-			return done(null, false, { message: "Username not found." });
+			return done(null, false, { message: "Incorrect username or password." });
 		}
 
 		const match = await bcrypt.compare(password, user.password);
