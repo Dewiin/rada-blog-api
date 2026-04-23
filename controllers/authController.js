@@ -3,7 +3,7 @@ import passport from "passport";
 import jwt from "jsonwebtoken";
 import { prisma } from "../config/prismaClient.js";
 
-async function signUp(req, res) {
+async function signup(req, res) {
     try {
         const { username, password } = req.body;
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -94,14 +94,10 @@ async function logout(req, res) {
 export function verifyToken(req, res) {
     try {
         const token = req.cookies.token;
-        if(!token) {
-            return res.sendStatus(400).json({ error: "Token is missing!" });
-        }
+        if(!token) return res.sendStatus(400).json({ error: "Token is missing!" });
     
         const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-        if (!decoded || typeof decoded !== 'object') {
-            return res.status(400).json({ error: 'Token is invalid!' });
-        }
+        if (!decoded || typeof decoded !== 'object') return res.status(400).json({ error: 'Token is invalid!' });
 
         return res.status(200).json(decoded);
     } catch (err) {
@@ -113,7 +109,7 @@ export function verifyToken(req, res) {
 }
 
 export const authController = {
-    signUp,
+    signup,
     login,
     logout,
     verifyToken
