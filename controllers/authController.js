@@ -101,10 +101,14 @@ export function verifyToken(req, res) {
 
         return res.status(200).json(decoded);
     } catch (err) {
-        console.error("Error in verifyToken:", err.message, err.stack);
-        return res.status(500).json({
-            error: "Error verifying token.",
-        });
+        if (err.name === "TokenExpiredError") {
+            return res.status(401).json({ error: "Token expired" });
+        }
+        if (err.name === "JsonWebTokenError") {
+            return res.status(401).json({ error: "Invalid token" });
+        }
+        console.error("Unexpected error:", err);
+        return res.status(500).json({ error: "Server error" });
     }    
 }
 
