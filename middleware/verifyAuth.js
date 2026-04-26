@@ -1,4 +1,6 @@
-function verifyAuth(req, res, next) {
+import jwt from "jsonwebtoken";
+
+export function verifyAuth(req, res, next) {
     try {
         const token = req.cookies.token;
         if(!token) return res.sendStatus(400).json({ error: "Token is missing!" });
