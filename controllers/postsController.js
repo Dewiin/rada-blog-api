@@ -31,23 +31,24 @@ async function getPosts(req, res) {
 
 async function createPost(req, res) {
     try {
-        const {title, content, published} = req.body;
+        const {title, content, published, authorId} = req.body;
         const post = await prisma.post.create({
             data: {
                 title,
                 content,
-                published
+                published,
+                authorId,
             }
         });
 
         return res.status(200).json({
-            message: "Successfully created post.",
+            message: "Successfully created post!",
             post,
         });
     } catch (err) {
         console.error("Error in createPost:", err.message, err.stack);
         return res.status(500).json({
-            error: "Database query failed for createPost.",
+            error: "Server failed to create post",
         });
     }
 }
@@ -80,7 +81,7 @@ async function updatePost(req, res) {
     }
 }
 
-export const indexController = {
+export const postsController = {
     getPosts,
     createPost,
     updatePost

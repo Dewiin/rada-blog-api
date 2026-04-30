@@ -1,0 +1,10 @@
+import { Router } from "express";
+import { postsController } from "../controllers/postsController.js";
+import { verifyAuth } from "../middleware/verifyAuth.js";
+export const postsRouter = Router();
+
+// *add auth middleware*
+postsRouter.get('/', postsController.getPosts);
+postsRouter.post('/', verifyAuth, postsController.createPost);
+postsRouter.put('/:id', verifyAuth, postsController.updatePost);
+
