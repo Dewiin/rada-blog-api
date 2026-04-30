@@ -8,7 +8,6 @@ import { fileURLToPath } from 'node:url';
 // routers
 import { indexRouter } from "./routes/indexRouter.js";
 import { authRouter } from "./routes/authRouter.js";
-import { apiKeysRouter } from "./routes/apiKeysRouter.js";
 
 // config
 import "./config/passportConfig.js"
@@ -44,7 +43,6 @@ app.get("/api", (req, res) => {
 });
 app.use("/api/posts", indexRouter);
 app.use("/api/auth", authRouter);
-app.use("/api/keys", apiKeysRouter);
 app.use((req, res) => {
 	res.status(404).json({ error: "Not Found" });
 });
