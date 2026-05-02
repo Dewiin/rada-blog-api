@@ -70,7 +70,7 @@ async function login(req, res) {
                     role: user.role,
                 }, 
                 process.env.JWT_SECRET_KEY,
-                { expiresIn: "10s" }
+                { expiresIn: "10m" }
             );
 
             const refreshToken = jwt.sign(
@@ -101,12 +101,16 @@ async function login(req, res) {
 
 async function logout(req, res) {
     try {
-        res.clearCookie("token", {
+        return res
+        .clearCookie("token", {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-        });
-
-        return res.json({ message: "User logged out." });
+        })
+        .clearCookie("refreshToken", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+        })
+        .json({ message: "User logged out." });
     } catch (err) {
         console.error("Error in logout:", err.message, err.stack);
         return res.status(500).json({
@@ -118,7 +122,7 @@ async function logout(req, res) {
 async function verifyToken(req, res) {
     try {
         const token = req.cookies.token;
-        if(!token) return res.sendStatus(400).json({ error: "Token is missing!" });
+        if(!token) return res.status(400).json({ error: "Token is missing!" });
     
         const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
         if (!decoded || typeof decoded !== 'object') return res.status(400).json({ error: 'Token is invalid!' });
@@ -140,7 +144,7 @@ async function verifyToken(req, res) {
 async function refreshToken(req, res) {
     try {
         const refreshToken = req.cookies.refreshToken;
-        if(!refreshToken) return res.sendStatus(400).json({ error: "Token is missing!" });
+        if(!refreshToken) return res.status(400).json({ error: "Token is missing!" });
 
         const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_KEY);
         if (!decoded || typeof decoded !== 'object') return res.status(400).json({ error: 'Session expired!' });
@@ -171,6 +175,12 @@ async function refreshToken(req, res) {
         .json({ message: "Token refreshed." })
     } catch (err) {
         console.error("Unexpected error:", err);
+        if (err.name === "TokenExpiredError") {
+            return res.status(401).json({ error: "Refresh token expired" });
+        }
+        if (err.name === "JsonWebTokenError") {
+            return res.status(401).json({ error: "Invalid refresh token" });
+        }
         return res.status(500).json({ error: "Server error" });
     }
 }
