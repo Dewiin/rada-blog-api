@@ -24,17 +24,28 @@ async function signup(req, res) {
             }
         });
 
-        const token = jwt.sign(
+        const accessToken = jwt.sign(
             {
                 id: user.id,
                 username: user.username,
                 role: user.role,
             }, 
             process.env.JWT_SECRET_KEY,
-            { expiresIn: "5m" }
+            { expiresIn: "10m" }
+        );
+        const refreshToken = jwt.sign(
+            { id: user.id }, 
+            process.env.JWT_REFRESH_KEY,
+            { expiresIn: "7d" }
         );
 
-        return res.cookie("token", token, {
+        return res
+        .status(200)
+        .cookie("token", accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+        })
+        .cookie("refreshToken", refreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
         }).json({ message: "User created and logged in." });
@@ -52,20 +63,33 @@ async function login(req, res) {
             if(err) return res.status(400).json({error: "Authentication failed."});
             if(!user) return res.status(401).json({error: info?.message});
 
-            const token = jwt.sign(
+            const accessToken = jwt.sign(
                 {
                     id: user.id,
                     username: user.username,
                     role: user.role,
                 }, 
                 process.env.JWT_SECRET_KEY,
-                { expiresIn: "5m" }
+                { expiresIn: "10m" }
             );
 
-            return res.cookie("token", token, {
+            const refreshToken = jwt.sign(
+                { id: user.id },
+                process.env.JWT_REFRESH_KEY,
+                { expiresIn: "7d" }
+            );
+
+            return res
+            .status(200)
+            .cookie("token", accessToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
-            }).json({ message: "User logged in." });
+            })
+            .cookie("refreshToken", refreshToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production"
+            })
+            .json({ message: "User logged in." });
         })(req, res);
     } catch (err) {
         console.error("Error in login:", err.message, err.stack);
@@ -77,7 +101,7 @@ async function login(req, res) {
 
 async function logout(req, res) {
     try {
-        res.clearCookie("token", {
+        res.clearCookie("accessToken", {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
         });
@@ -99,22 +123,62 @@ export function verifyToken(req, res) {
         const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
         if (!decoded || typeof decoded !== 'object') return res.status(400).json({ error: 'Token is invalid!' });
 
+        req.user = decoded;
         return res.status(200).json(decoded);
     } catch (err) {
+        console.error("Unexpected error:", err);
         if (err.name === "TokenExpiredError") {
             return res.status(401).json({ error: "Token expired" });
         }
         if (err.name === "JsonWebTokenError") {
             return res.status(401).json({ error: "Invalid token" });
         }
-        console.error("Unexpected error:", err);
         return res.status(500).json({ error: "Server error" });
     }    
+}
+
+export function refreshToken(req, res) {
+    try {
+        const refreshToken = req.cookies.refreshToken;
+        if(!refreshToken) return res.sendStatus(400).json({ error: "Token is missing!" });
+
+        const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_KEY);
+        if (!decoded || typeof decoded !== 'object') return res.status(400).json({ error: 'Token is invalid!' });
+
+        const user = await prisma.user.findUnique({
+            where: {
+                id: decoded.id,
+            }
+        });
+        if(!user) return res.status(401).json({ error: "User not found" });
+
+        const accessToken = jwt.sign(
+            {
+                id: user.id,
+                username: user.username,
+                role: user.role,
+            },
+            process.env.JWT_SECRET_KEY,
+            { expiresIn: "10m" }
+        );
+
+        return res
+        .status(200)
+        .cookie("token", accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production"
+        })
+        .json({ message: "Token refreshed." })
+    } catch (err) {
+        console.error("Unexpected error:", err);
+        return res.status(500).json({ error: "Server error" });
+    }
 }
 
 export const authController = {
     signup,
     login,
     logout,
-    verifyToken
+    verifyToken,
+    refreshToken,
 };

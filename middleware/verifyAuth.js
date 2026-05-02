@@ -10,9 +10,13 @@ export function verifyAuth(req, res, next) {
 
         if(decoded.role !== "AUTHOR") return res.status(403).json({ error: "Forbidden" });
 
+        req.user = decoded;
         next();     
     } catch (err) {
         console.error("Error in verifyAuth:", err.message, err.stack);
+        if (err.name === "TokenExpiredError") {
+            return res.status(401).json({ error: "Token expired" });
+        }
         return res.status(500).json({
             error: "Error verifying auth.",
         });
