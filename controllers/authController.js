@@ -70,7 +70,7 @@ async function login(req, res) {
                     role: user.role,
                 }, 
                 process.env.JWT_SECRET_KEY,
-                { expiresIn: "10m" }
+                { expiresIn: "10s" }
             );
 
             const refreshToken = jwt.sign(
@@ -101,7 +101,7 @@ async function login(req, res) {
 
 async function logout(req, res) {
     try {
-        res.clearCookie("accessToken", {
+        res.clearCookie("token", {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
         });
@@ -115,7 +115,7 @@ async function logout(req, res) {
     }
 }
 
-export function verifyToken(req, res) {
+async function verifyToken(req, res) {
     try {
         const token = req.cookies.token;
         if(!token) return res.sendStatus(400).json({ error: "Token is missing!" });
@@ -137,13 +137,13 @@ export function verifyToken(req, res) {
     }    
 }
 
-export function refreshToken(req, res) {
+async function refreshToken(req, res) {
     try {
         const refreshToken = req.cookies.refreshToken;
         if(!refreshToken) return res.sendStatus(400).json({ error: "Token is missing!" });
 
         const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_KEY);
-        if (!decoded || typeof decoded !== 'object') return res.status(400).json({ error: 'Token is invalid!' });
+        if (!decoded || typeof decoded !== 'object') return res.status(400).json({ error: 'Session expired!' });
 
         const user = await prisma.user.findUnique({
             where: {
