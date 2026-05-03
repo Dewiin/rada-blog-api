@@ -14,6 +14,9 @@ async function getPosts(req, res) {
                         user: true,
                     }
                 }
+            },
+            orderBy: {
+                createdAt: "desc",
             }
         });
 
