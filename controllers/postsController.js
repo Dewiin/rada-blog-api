@@ -31,10 +31,11 @@ async function getPosts(req, res) {
 
 async function createPost(req, res) {
     try {
-        const {title, content, published, authorId} = req.body;
+        const {title, subtitle, content, published, authorId} = req.body;
         const post = await prisma.post.create({
             data: {
                 title,
+                subtitle,
                 content,
                 published,
                 authorId,
@@ -55,7 +56,7 @@ async function createPost(req, res) {
 
 async function updatePost(req, res) {
     try {
-        const {title, content, published} = req.body;
+        const {title, subtitle, content, published} = req.body;
         const { id } = req.params; 
         const post = await prisma.post.update({
             where: {
@@ -63,6 +64,7 @@ async function updatePost(req, res) {
             },
             data: {
                 title,
+                subtitle,
                 content,
                 published,
                 updatedAt: new Date()

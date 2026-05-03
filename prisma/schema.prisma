@@ -24,10 +24,10 @@ enum Provider {
 }
 
 model User {
-  id       String @id @default(uuid())
-  username String @unique
+  id       String   @id @default(uuid())
+  username String   @unique
   password String
-  role     Role   @default(USER)
+  role     Role     @default(USER)
   provider Provider
 
   // Relations
@@ -55,12 +55,13 @@ model Comment {
 }
 
 model Post {
-  id        Int      @id @default(autoincrement())
-  title     String
-  content   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  published Boolean  @default(true)
+  id          Int      @id @default(autoincrement())
+  title       String
+  subtitle    String
+  content     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  published   Boolean  @default(true)
 
   // Relations
   author   User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
