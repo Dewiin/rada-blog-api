@@ -62,6 +62,7 @@ model Post {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   published   Boolean  @default(true)
+  claps       Int      @default(0)
 
   // Relations
   author   User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
