@@ -1,7 +1,7 @@
 import { prisma } from "../config/prismaClient.js";
 
 // TODO: add filters
-async function getAllPublishedPosts(req, res) {
+async function getAllPosts(req, res) {
     try {
         const posts = await prisma.post.findMany({
             where: {
@@ -21,7 +21,7 @@ async function getAllPublishedPosts(req, res) {
         });
 
         return res.status(200).json({
-            message: "Successfully retrieved posts.",
+            message: "Successfully retrieved published posts.",
             posts,
         });
     } catch (err) {
@@ -32,38 +32,7 @@ async function getAllPublishedPosts(req, res) {
     } 
 }
 
-async function getAllUnpublishedPosts(req, res) {
-    try {
-        const posts = await prisma.post.findMany({
-            where: {
-                published: false,
-            },
-            include: {
-                author: true,
-                comments: {
-                    include: {
-                        user: true,
-                    }
-                }
-            },
-            orderBy: {
-                createdAt: "desc",
-            }
-        });
-
-        return res.status(200).json({
-            message: "Successfully retrieved posts.",
-            posts,
-        });
-    } catch (err) {
-        console.error("Error in getAllPosts:", err.message, err.stack);
-        return res.status(500).json({
-            error: "Database query failed for getAllPosts.",
-        });
-    } 
-}
-
-async function getPost(req, res) {
+async function getPostById(req, res) {
     try {
         const { id } = req.params;
 
@@ -153,9 +122,8 @@ async function updatePost(req, res) {
 }
 
 export const postsController = {
-    getAllPublishedPosts,
-    getAllUnpublishedPosts,
-    getPost,
+    getAllPosts,
+    getPostById,
     createPost,
     updatePost
 };

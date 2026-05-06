@@ -4,9 +4,8 @@ import { verifyAuth } from "../middleware/verifyAuth.js";
 export const postsRouter = Router();
 
 // *add auth middleware*
-postsRouter.get('/', postsController.getAllPublishedPosts);
-postsRouter.get('/:id', postsController.getPost);
+postsRouter.get('/', postsController.getAllPosts);
 postsRouter.post('/', verifyAuth, postsController.createPost);
+postsRouter.get('/:id', postsController.getPostById);
 postsRouter.put('/:id', verifyAuth, postsController.updatePost);
-postsRouter.get('/unpublished', verifyAuth, postsController.getAllUnpublishedPosts);
 
