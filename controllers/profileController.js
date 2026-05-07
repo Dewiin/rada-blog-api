@@ -12,8 +12,9 @@ async function getAllPublishedPosts(req, res) {
                 comments: {
                     include: {
                         user: true,
-                    }
-                }
+                    },
+                },
+                claps: true,
             },
             orderBy: {
                 createdAt: "desc",
@@ -45,7 +46,8 @@ async function getAllUnpublishedPosts(req, res) {
                     include: {
                         user: true,
                     }
-                }
+                },
+                claps: true,
             },
             orderBy: {
                 createdAt: "desc",

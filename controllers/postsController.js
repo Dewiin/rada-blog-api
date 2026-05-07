@@ -13,7 +13,8 @@ async function getAllPosts(req, res) {
                     include: {
                         user: true,
                     }
-                }
+                },
+                claps: true,
             },
             orderBy: {
                 createdAt: "desc",
@@ -46,7 +47,8 @@ async function getPostById(req, res) {
                     include: {
                         user: true,
                     }
-                }
+                },
+                claps: true,
             }
         });
 
