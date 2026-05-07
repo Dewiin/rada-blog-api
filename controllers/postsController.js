@@ -39,7 +39,6 @@ async function getPostById(req, res) {
         const post = await prisma.post.findUnique({
             where: {
                 id: parseInt(id),
-                published: true,
             },
             include: {
                 author: true,
