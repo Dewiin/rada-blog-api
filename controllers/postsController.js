@@ -117,7 +117,36 @@ async function updatePost(req, res) {
     } catch (err) {
         console.error("Error in updatePost:", err.message, err.stack);
         return res.status(500).json({
-            error: "Database query failed for updatePost.",
+            error: "Server error for updatePost.",
+        });
+    }
+}
+
+async function deletePost(req, res) {
+    try {
+        const { id } = req.params;
+
+        const post = await prisma.post.findUnique({
+            where: {
+                id: parseInt(id),
+            }
+        });
+
+        if(!post) return res.status(404).json({ error: "Post does not exist." });
+        if(post.authorId !== req.user.id) return res.status(403).json({ error: "Forbidden." });
+
+        await prisma.post.delete({
+            where: {
+                id: parseInt(id),
+                authorId: req.user.id,
+            }
+        });
+
+        return res.status(200).json({ message: "Post deleted successfully!" });
+    } catch(err) {
+        console.error("Error in deletePost:", err.message, err.stack);
+        return res.status(500).json({
+            error: "Server error for deletePost.",
         });
     }
 }
@@ -126,5 +155,6 @@ export const postsController = {
     getAllPosts,
     getPostById,
     createPost,
-    updatePost
+    updatePost,
+    deletePost
 };
