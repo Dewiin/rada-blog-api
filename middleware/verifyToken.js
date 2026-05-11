@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 export function verifyToken(req, res, next) {
     try {
         const token = req.cookies.token;
-        if(!token) return res.status(400).json({ error: "Token is missing!" });
+        if(!token) return res.status(400).json({ error: "Invalid Credentials." });
     
         const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
         if (!decoded || typeof decoded !== 'object') return res.status(400).json({ error: 'Token is invalid!' });
