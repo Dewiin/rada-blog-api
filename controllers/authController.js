@@ -119,28 +119,6 @@ async function logout(req, res) {
     }
 }
 
-async function verifyToken(req, res) {
-    try {
-        const token = req.cookies.token;
-        if(!token) return res.status(400).json({ error: "Token is missing!" });
-    
-        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-        if (!decoded || typeof decoded !== 'object') return res.status(400).json({ error: 'Token is invalid!' });
-
-        req.user = decoded;
-        return res.status(200).json(decoded);
-    } catch (err) {
-        console.error("Unexpected error:", err);
-        if (err.name === "TokenExpiredError") {
-            return res.status(401).json({ error: "Token expired" });
-        }
-        if (err.name === "JsonWebTokenError") {
-            return res.status(401).json({ error: "Invalid token" });
-        }
-        return res.status(500).json({ error: "Server error" });
-    }    
-}
-
 async function refreshToken(req, res) {
     try {
         const refreshToken = req.cookies.refreshToken;
@@ -185,10 +163,15 @@ async function refreshToken(req, res) {
     }
 }
 
+async function getCurrentUser(req, res) {
+    if(!req.user) return res.status(404).json({ error: "No user" });
+    return res.status(200).json(req.user);
+}
+
 export const authController = {
     signup,
     login,
     logout,
-    verifyToken,
     refreshToken,
+    getCurrentUser
 };
