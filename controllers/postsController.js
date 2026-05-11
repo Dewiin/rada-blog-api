@@ -154,10 +154,63 @@ async function deletePost(req, res) {
     }
 }
 
+async function addClap(req, res) {
+    try {
+        // postId
+        const { id } = req.params;
+
+        const post = await prisma.post.findUnique({
+            where: {
+                id: parseInt(id),
+            }
+        });
+        if(!post) return res.status(404).json({ error: "Post does not exist." });
+
+        let clap = await prisma.clap.findFirst({
+            where: {
+                postId: parseInt(id),
+                userId: req.user.id
+            }
+        });
+
+        if(!clap) {
+            clap = await prisma.clap.create({
+                data: {
+                    userId: req.user.id,
+                    postId: parseInt(id),
+                }
+            });
+        }
+        
+        if(clap.amount >= 50) return res.status(400).json({ error: "Clap limit exceeded at 50 per post!" });
+
+        await prisma.clap.update({
+            where: {
+                id: clap.id,
+                userId: req.user.id,
+                postId: parseInt(id),
+            },
+            data: {
+                amount: {
+                    increment: 1
+                }
+            }
+        });
+
+        return res.status(200).json({ message: "Clap submitted." });
+    } catch(err) {
+        console.error("Error in addClap:", err.message, err.stack);
+        return res.status(500).json({
+            error: "Server error for addClap.",
+        });
+    }
+}
+
 export const postsController = {
     getAllPosts,
     getPostById,
     createPost,
     updatePost,
-    deletePost
+    deletePost,
+    addClap
 };
