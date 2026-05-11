@@ -46,6 +46,9 @@ async function getPostById(req, res) {
                 comments: {
                     include: {
                         user: true,
+                    },
+                    orderBy: {
+                        createdAt: "desc"
                     }
                 },
                 claps: true,
