@@ -163,15 +163,54 @@ async function refreshToken(req, res) {
     }
 }
 
+async function googleLogin(req, res) {
+    try {
+        const accessToken = jwt.sign(
+            {
+                id: req.user.id,
+                username: req.user.googleName,
+                role: req.user.role,
+            }, 
+            process.env.JWT_SECRET_KEY,
+            { expiresIn: "10m" }
+        );
+
+        const refreshToken = jwt.sign(
+            { id: req.user.id },
+            process.env.JWT_REFRESH_KEY,
+            { expiresIn: "7d" }
+        );
+
+        return res
+        .status(200)
+        .cookie("token", accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+        })
+        .cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production"
+        })
+        .redirect(`${process.env.CLIENT_URL}/`);
+    } catch (err) {
+        console.error("Error in googleLogin:", err.message, err.stack);
+        return res.status(500).json({
+            error: "Server failed for google login.",
+        });
+    }
+}
+
 async function getCurrentUser(req, res) {
     if(!req.user) return res.status(404).json({ error: "No user" });
     return res.status(200).json(req.user);
 }
+
 
 export const authController = {
     signup,
     login,
     logout,
     refreshToken,
-    getCurrentUser
+    getCurrentUser,
+    googleLogin
 };

@@ -12,6 +12,7 @@ import { profileRouter } from "./routes/profileRouter.js";
 import { commentsRouter } from "./routes/commentsRouter.js";
 
 // config
+import "dotenv/config"
 import "./config/passportConfig.js"
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
