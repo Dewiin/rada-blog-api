@@ -40,6 +40,7 @@ async function googleVerifyCallback(accessToken, refreshToken, profile, cb) {
 			create: {
 				googleId: profile.id,
 				googleName: profile.displayName,
+				displayName: profile.displayName,
 				provider: "GOOGLE"
 			}
 		});
