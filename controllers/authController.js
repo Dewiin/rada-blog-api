@@ -137,7 +137,7 @@ async function refreshToken(req, res) {
         const accessToken = jwt.sign(
             {
                 id: user.id,
-                username: user.username,
+                username: user.provider === "LOCAL" ? user.username : user.googleName,
                 role: user.role,
             },
             process.env.JWT_SECRET_KEY,
