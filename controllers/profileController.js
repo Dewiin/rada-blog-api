@@ -68,55 +68,61 @@ async function getAllUnpublishedPosts(req, res) {
 
 async function getActivity(req, res) {
     try {
-        const clapsActivity = (await prisma.post.findMany({
+        // claps
+        const claps = await prisma.clap.findMany({
             where: {
-                claps: {
-                    some: {
-                        userId: req.user.id
-                    }
-                }
-            },
-            include: {
-                author: true,
-                comments: {
-                    include: {
-                        user: true,
-                    }
-                },
-                claps: true,
+                userId: req.user.id,
             },
             orderBy: {
-                createdAt: "desc"
+                updatedAt: "desc",
             }
-        })).map((activity) => ({
-            ...activity,
-            type: "clap"
-        }));
+        });
+        const clapsActivity = [];
+        for(const clap of claps) {
+            const post = await prisma.post.findFirst({
+                where: {
+                    claps: {
+                        some: {
+                            id: clap.id,
+                        }
+                    }
+                },
+                include: {
+                    author: true,
+                    comments: true,
+                    claps: true,
+                }
+            });
+            clapsActivity.push({...post, type: "clap"});
+        }
 
-        const commentsActivity = (await prisma.post.findMany({
+        // comments
+        const comments = await prisma.comment.findMany({
             where: {
-                comments: {
-                    some: {
-                        userId: req.user.id,
-                    }
-                }
-            },
-            include: {
-                author: true,
-                comments: {
-                    include: {
-                        user: true,
-                    }
-                },
-                claps: true,
+                userId: req.user.id,
             },
             orderBy: {
                 createdAt: "desc"
             }
-        })).map((activity) => ({
-            ...activity,
-            type: "comment"
-        }));
+        });
+        const commentsActivity = [];
+        for(const comment of comments) {
+            const post = await prisma.post.findFirst({
+                where: {
+                    comments: {
+                        some: {
+                            id: comment.id
+                        }
+                    }
+                },
+                include: {
+                    author: true,
+                    comments: true,
+                    claps: true,
+                }
+            });
+            commentsActivity.push({...post, type: "comment"});
+        }
 
         return res.status(200).json({ 
             clapsActivity, 
