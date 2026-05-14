@@ -27,7 +27,7 @@ async function signup(req, res) {
         const accessToken = jwt.sign(
             {
                 id: user.id,
-                username: user.username,
+                displayName: user.displayName,
                 role: user.role,
             }, 
             process.env.JWT_SECRET_KEY,
@@ -66,7 +66,7 @@ async function login(req, res) {
             const accessToken = jwt.sign(
                 {
                     id: user.id,
-                    username: user.username,
+                    displayName: user.displayName,
                     role: user.role,
                 }, 
                 process.env.JWT_SECRET_KEY,
@@ -137,7 +137,7 @@ async function refreshToken(req, res) {
         const accessToken = jwt.sign(
             {
                 id: user.id,
-                username: user.provider === "LOCAL" ? user.username : user.googleName,
+                displayName: user.displayName,
                 role: user.role,
             },
             process.env.JWT_SECRET_KEY,
@@ -168,7 +168,7 @@ async function googleLogin(req, res) {
         const accessToken = jwt.sign(
             {
                 id: req.user.id,
-                username: req.user.googleName,
+                displayName: req.user.displayName,
                 role: req.user.role,
             }, 
             process.env.JWT_SECRET_KEY,
