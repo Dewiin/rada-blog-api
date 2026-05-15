@@ -28,7 +28,7 @@ async function getAllPosts(req, res) {
     } catch (err) {
         console.error("Error in getAllPosts:", err.message, err.stack);
         return res.status(500).json({
-            error: "Database query failed for getAllPosts.",
+            error: "Server failed to fetch public posts.",
         });
     } 
 }
@@ -66,7 +66,7 @@ async function getPostById(req, res) {
     } catch (err) {
         console.error("Error in getPost:", err.message, err.stack);
         return res.status(500).json({
-            error: "Database query failed for getPost.",
+            error: "Server failed to fetch post.",
         });
     }
 }
@@ -100,9 +100,19 @@ async function updatePost(req, res) {
     try {
         const {title, subtitle, content, published} = req.body;
         const { id } = req.params; 
-        const post = await prisma.post.update({
+        
+        const post = await prisma.post.findUnique({
             where: {
-                id,
+                id: parseInt(id),
+            }
+        });
+
+        if(!post) return res.status(404).json({ error: "Post does not exist!" });
+        if(post.authorId !== req.user.id) return res.status(403).json({ error: "Forbidden." });
+
+        await prisma.post.update({
+            where: {
+                id: parseInt(id),
             },
             data: {
                 title,
@@ -115,12 +125,11 @@ async function updatePost(req, res) {
 
         return res.status(200).json({
             message: "Successfully updated post.",
-            post,
         });
     } catch (err) {
         console.error("Error in updatePost:", err.message, err.stack);
         return res.status(500).json({
-            error: "Server error for updatePost.",
+            error: "Server failed to update post.",
         });
     }
 }
@@ -149,7 +158,7 @@ async function deletePost(req, res) {
     } catch(err) {
         console.error("Error in deletePost:", err.message, err.stack);
         return res.status(500).json({
-            error: "Server error for deletePost.",
+            error: "Server failed to delete post.",
         });
     }
 }
@@ -201,7 +210,7 @@ async function addClap(req, res) {
     } catch(err) {
         console.error("Error in addClap:", err.message, err.stack);
         return res.status(500).json({
-            error: "Server error for addClap.",
+            error: "Server failed to clap.",
         });
     }
 }
