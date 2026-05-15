@@ -73,60 +73,63 @@ async function getActivity(req, res) {
             where: {
                 userId: req.user.id,
             },
+            include: {
+                post: {
+                    include: {
+                        author: true,
+                        claps: true,
+                        comments: true,
+                    }
+                }
+            },
             orderBy: {
                 updatedAt: "desc",
             }
         });
-        const clapsActivity = [];
-        for(const clap of claps) {
-            const post = await prisma.post.findFirst({
-                where: {
-                    claps: {
-                        some: {
-                            id: clap.id,
-                        }
-                    }
-                },
-                include: {
-                    author: true,
-                    comments: true,
-                    claps: true,
-                }
-            });
-            clapsActivity.push({...post, type: "clap"});
-        }
 
         // comments
         const comments = await prisma.comment.findMany({
             where: {
                 userId: req.user.id,
             },
+            include: {
+                post: {
+                    include: {
+                        author: true,
+                        comments: true,
+                        claps: true,
+                    }
+                }
+            },
             orderBy: {
-                createdAt: "desc"
+                updatedAt: "desc"
             }
         });
-        const commentsActivity = [];
-        for(const comment of comments) {
-            const post = await prisma.post.findFirst({
-                where: {
-                    comments: {
-                        some: {
-                            id: comment.id
-                        }
-                    }
-                },
-                include: {
-                    author: true,
-                    comments: true,
-                    claps: true,
-                }
-            });
-            commentsActivity.push({...post, type: "comment"});
-        }
+
+        const clapsActivity = claps.map((clap) => (
+            {
+                ...clap.post,
+                type: "clap",
+                updatedAt: clap.updatedAt
+            }
+        ));
+        const commentsActivity = comments.map((comment) => (
+            {
+                ...comment.post,
+                type: "comment",
+                updatedAt: comment.updatedAt
+            }
+        ));
+
+        const activity = [
+            ...clapsActivity,
+            ...commentsActivity,
+        ].sort(
+            (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)   
+        );
 
         return res.status(200).json({ 
-            clapsActivity, 
-            commentsActivity, 
+            activity, 
             message: "Activity fetched successfully!" 
         });
     } catch (err) {
