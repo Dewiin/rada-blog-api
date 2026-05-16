@@ -44,10 +44,12 @@ async function signup(req, res) {
         .cookie("token", accessToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
         })
         .cookie("refreshToken", refreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
         }).json({ message: "User created and logged in." });
     } catch (err) {
         console.error("Error in signUp:", err.message, err.stack);
@@ -84,10 +86,12 @@ async function login(req, res) {
             .cookie("token", accessToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
+                sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
             })
             .cookie("refreshToken", refreshToken, {
                 httpOnly: true,
-                secure: process.env.NODE_ENV === "production"
+                secure: process.env.NODE_ENV === "production",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
             })
             .json({ message: "User logged in." });
         })(req, res);
@@ -105,10 +109,12 @@ async function logout(req, res) {
         .clearCookie("token", {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
         })
         .clearCookie("refreshToken", {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
         })
         .json({ message: "User logged out." });
     } catch (err) {
@@ -148,7 +154,8 @@ async function refreshToken(req, res) {
         .status(200)
         .cookie("token", accessToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production"
+            secure: process.env.NODE_ENV === "production",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
         })
         .json({ message: "Token refreshed." })
     } catch (err) {
@@ -186,10 +193,12 @@ async function googleLogin(req, res) {
         .cookie("token", accessToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
         })
         .cookie("refreshToken", refreshToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production"
+            secure: process.env.NODE_ENV === "production",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
         })
         .redirect(`${process.env.CLIENT_URL}/`);
     } catch (err) {
