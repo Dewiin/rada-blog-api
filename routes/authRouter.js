@@ -14,6 +14,7 @@ authRouter.get('/google',
     passport.authenticate('google', { 
         session: false,
         scope: ['profile'],
+        prompt: "select_account",
     })
 );
 
