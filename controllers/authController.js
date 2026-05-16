@@ -91,7 +91,7 @@ async function login(req, res) {
             .cookie("refreshToken", refreshToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
-            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+                sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
             })
             .json({ message: "User logged in." });
         })(req, res);

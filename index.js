@@ -26,7 +26,7 @@ app.use(cors({
             "http://localhost:5173",
             "https://rada-blog.vercel.app"
         ];
-        if (!origin || allowed.includes(origin)) {
+        if (!origin || allowed.includes(origin) || origin.endsWith(".vercel.app")) {
             ctx(null, true);
         } else {
             ctx(new Error("Not allowed by CORS: ", origin));
