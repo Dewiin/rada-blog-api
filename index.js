@@ -24,7 +24,7 @@ app.use(cors({
         const allowed = [
             "http://127.0.0.1:5173", 
             "http://localhost:5173",
-            "https://dewiin.github.io"
+            "https://rada-blog.vercel.app"
         ];
         if (!origin || allowed.includes(origin)) {
             ctx(null, true);
